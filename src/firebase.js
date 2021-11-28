@@ -92,7 +92,7 @@ export const getProjectIfManager = async (uid) => {
 };
 
 export const getProjectIfOwner = async (uid) => {
-    const ref = db.collection("projects").where('owner', "array-contains", uid);
+    const ref = db.collection("projects").where('owner', "==", uid);
     const snapshot = await ref.get()
 
     if (snapshot.size) {
@@ -139,3 +139,28 @@ export const getProjectsByUid = async (uid) => {
     return null
 };
 
+export const getRoleByTeamId = async (uid, teamId) => {
+    const ref = firebase.firestore().doc(`projects/${teamId}`);
+    const snapshot = await ref.get()
+
+    if (snapshot.exists) {
+        let data = snapshot.data();
+        return (data.owner == uid) ? 'owner'
+            : (data.manager.indexOf(uid) > -1) ? 'manager'
+                : (data.editor.indexOf(uid) > -1) ? 'editor' : 'viewer';
+    }
+
+    return null
+};
+
+export const getUserByUid = async (uid) => {
+    const ref = firebase.firestore().doc(`users/${uid}`);
+    const snapshot = await ref.get();
+
+    if (snapshot.exists) {
+        let data = snapshot.data();
+        return data;
+    }
+
+    return null
+};
