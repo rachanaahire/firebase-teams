@@ -214,3 +214,37 @@ export const getUserNameByUid = async (uid) => {
 
     return null
 };
+
+
+// GET from contents collection
+export const getAllContent = async () => {
+    const ref = db.collectionGroup("contents");
+    const snapshot = await ref.get()
+
+    if (snapshot.size) {
+        const items = [];
+        snapshot.forEach(doc => {
+            let data = { ...doc.data(), docId: doc.id }
+            items.push(data);
+        });
+        return items
+    }
+
+    return null
+};
+
+export const getContentByProjectId = async (pid) => {
+    const ref = firebase.firestore().collection(`projects/${pid}/contents`);
+    const snapshot = await ref.get()
+
+    if (snapshot.size) {
+        const items = [];
+        snapshot.forEach(doc => {
+            let data = { ...doc.data(), docId: doc.id }
+            items.push(data);
+        });
+        return items
+    }
+
+    return null
+};
