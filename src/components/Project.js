@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { makeStyles, Button } from '@material-ui/core';
-import { auth, getRoleByTeamId } from '../firebase';
+import { auth, getRoleByProjectId } from '../firebase';
 import About from './About';
 import AllContent from './AllContent';
 import MyContent from './MyContent';
@@ -23,7 +23,7 @@ const Project = (props) => {
     const getRole = async () => {
         setLoading(true);
         let user = await auth.currentUser;
-        let role = await getRoleByTeamId(user.uid, props.team.docId);
+        let role = await getRoleByProjectId(user.uid, props.team.docId);
         setRole(role);
         setLoading(false);
     }
@@ -44,13 +44,13 @@ const Project = (props) => {
         <>
             <Button onClick={() => navigate(0)} size="small" variant="outlined"> ABOUT </Button>
             <Button onClick={() => navigate(1)} size="small" variant="outlined"> ALL Contents </Button>
-            <Button onClick={() => navigate(3)} size="small" variant="outlined"> Members </Button>
-            {role !== 'viewer' && <Button onClick={() => navigate(2)} size="small" variant="outlined"> My Contents </Button>}
+            <Button onClick={() => navigate(2)} size="small" variant="outlined"> Members </Button>
+            {role !== 'viewer' && <Button onClick={() => navigate(3)} size="small" variant="outlined"> My Contents </Button>}
             {(role !== 'viewer' && role !== 'editor') && <Button onClick={() => navigate(4)} size="small" variant="outlined"> Settings </Button>}
             {navId === 0 && <About team={props.team} />}
             {navId === 1 && <AllContent />}
-            {navId == 2 && <MyContent />}
-            {navId == 3 && <Members />}
+            {navId == 2 && <Members team={props.team} />}
+            {navId == 3 && <MyContent />}
             {navId == 4 && <ProjectSettings />}
         </>
     );

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Typography, makeStyles } from '@material-ui/core';
-import { getUserByUid } from '../firebase';
+import { getUserNameByUid } from '../firebase';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -16,8 +16,8 @@ const About = (props) => {
 
     const getOwnerData = async () => {
         setLoading(true);
-        let owner_data = await getUserByUid(team.owner);
-        setOwner(owner_data.name);
+        let owner_name = await getUserNameByUid(team.owner);
+        setOwner(owner_name);
         setLoading(false);
     }
 
