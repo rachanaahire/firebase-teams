@@ -48,9 +48,9 @@ const Project = (props) => {
             {role !== 'viewer' && <Button onClick={() => navigate(3)} size="small" variant="outlined"> My Contents </Button>}
             {(role !== 'viewer' && role !== 'editor') && <Button onClick={() => navigate(4)} size="small" variant="outlined"> Settings </Button>}
             {navId === 0 && <About team={props.team} />}
-            {navId === 1 && <AllContent />}
+            {navId === 1 && <AllContent team={props.team} />}
             {navId == 2 && <Members team={props.team} />}
-            {navId == 3 && <MyContent />}
+            {navId == 3 && <MyContent team={props.team} />}
             {navId == 4 && <ProjectSettings />}
         </>
     );
