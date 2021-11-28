@@ -59,6 +59,8 @@ export const createUserDocument = async (user, additionalData) => {
         }
     }
 };
+
+// GET from projects collection
 export const getAllProjects = async () => {
     const ref = firebase.firestore().collection("projects");
     const snapshot = await ref.get()
@@ -139,8 +141,20 @@ export const getProjectsByUid = async (uid) => {
     return null
 };
 
-export const getRoleByTeamId = async (uid, teamId) => {
-    const ref = firebase.firestore().doc(`projects/${teamId}`);
+export const getProjectById = async (pId) => {
+    const ref = firebase.firestore().doc(`projects/${pId}`);
+    const snapshot = await ref.get();
+
+    if (snapshot.exists) {
+        let data = snapshot.data();
+        return data;
+    }
+
+    return null
+}
+
+export const getRoleByProjectId = async (uid, projectId) => {
+    const ref = firebase.firestore().doc(`projects/${projectId}`);
     const snapshot = await ref.get()
 
     if (snapshot.exists) {
@@ -153,6 +167,30 @@ export const getRoleByTeamId = async (uid, teamId) => {
     return null
 };
 
+export const getMembersOfProject = async (pId) => {
+    let project_data = await getProjectById(pId);
+    let members = {
+        owner: await getUserNameByUid(project_data.owner),
+        manager: [],
+        editor: []
+    }
+
+    project_data.manager.forEach(id => {
+        getUserNameByUid(id).then((name)=>{
+            members.manager.push(name);
+        })
+    });
+    project_data.editor.forEach(id => {
+        getUserNameByUid(id).then((name)=>{
+            members.editor.push(name);
+        })
+    });
+
+    return members;
+    
+};
+
+// GET from users collection
 export const getUserByUid = async (uid) => {
     const ref = firebase.firestore().doc(`users/${uid}`);
     const snapshot = await ref.get();
@@ -160,6 +198,18 @@ export const getUserByUid = async (uid) => {
     if (snapshot.exists) {
         let data = snapshot.data();
         return data;
+    }
+
+    return null
+};
+
+export const getUserNameByUid = async (uid) => {
+    const ref = firebase.firestore().doc(`users/${uid}`);
+    const snapshot = await ref.get();
+
+    if (snapshot.exists) {
+        let name = snapshot.data().name;
+        return name;
     }
 
     return null
