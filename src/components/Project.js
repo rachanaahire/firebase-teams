@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { AppBar, Toolbar, IconButton, Typography, Menu, MenuItem, makeStyles, Button, Card, CardActions, CardContent, CardMedia, Grid } from '@material-ui/core';
-import {  } from '../firebase';
+import { makeStyles, Button } from '@material-ui/core';
+import { auth, getRoleByTeamId } from '../firebase';
 import About from './About';
 import AllContent from './AllContent';
 import MyContent from './MyContent';
@@ -15,11 +15,29 @@ const useStyles = makeStyles((theme) => ({
 
 const Project = (props) => {
     const classes = useStyles();
+    const [loading, setLoading] = useState(false);
     const [navId, setNavId] = useState(0);
-    console.log(props.team);
+    const [role, setRole] = useState('');
+
+
+    const getRole = async () => {
+        setLoading(true);
+        let user = await auth.currentUser;
+        let role = await getRoleByTeamId(user.uid, props.team.docId);
+        setRole(role);
+        setLoading(false);
+    }
 
     const navigate = (id) => {
         setNavId(id);
+    }
+
+    useEffect(() => {
+        getRole()
+    }, []);
+
+    if (loading) {
+        return <h1>LOADING</h1>
     }
 
     return (
@@ -27,8 +45,8 @@ const Project = (props) => {
             <Button onClick={() => navigate(0)} size="small" variant="outlined"> ABOUT </Button>
             <Button onClick={() => navigate(1)} size="small" variant="outlined"> ALL Contents </Button>
             <Button onClick={() => navigate(3)} size="small" variant="outlined"> Members </Button>
-            <Button onClick={() => navigate(2)} size="small" variant="outlined"> My Contents </Button>
-            <Button onClick={() => navigate(4)} size="small" variant="outlined"> Settings </Button>
+            {role !== 'viewer' && <Button onClick={() => navigate(2)} size="small" variant="outlined"> My Contents </Button>}
+            {(role !== 'viewer' && role !== 'editor') && <Button onClick={() => navigate(4)} size="small" variant="outlined"> Settings </Button>}
             {navId === 0 && <About team={props.team} />}
             {navId === 1 && <AllContent />}
             {navId == 2 && <MyContent />}
