@@ -176,18 +176,68 @@ export const getMembersOfProject = async (pId) => {
     }
 
     project_data.manager.forEach(id => {
-        getUserNameByUid(id).then((name)=>{
+        getUserNameByUid(id).then((name) => {
             members.manager.push(name);
         })
     });
     project_data.editor.forEach(id => {
-        getUserNameByUid(id).then((name)=>{
+        getUserNameByUid(id).then((name) => {
             members.editor.push(name);
         })
     });
 
     return members;
-    
+
+};
+
+export const getManagerListByProjectId = async (pId) => {
+    let project_data = await getProjectById(pId);
+    let managerList = [];
+
+    for (const uid of project_data.manager) {
+        let obj = {
+            uid: uid,
+            name: await getUserNameByUid(uid)
+        }
+        managerList.push(obj)
+    }
+    return managerList;
+};
+
+export const getEditorListByProjectId = async (pId) => {
+    let project_data = await getProjectById(pId);
+    let managerList = [];
+
+    for (const uid of project_data.editor) {
+        let obj = {
+            uid: uid,
+            name: await getUserNameByUid(uid)
+        }
+        managerList.push(obj)
+    }
+    return managerList;
+};
+
+export const getManagerNamesByProjectId = async (pId) => {
+    let project_data = await getProjectById(pId);
+    let managerNames = [];
+
+    for (const uid of project_data.manager) {
+        let name = await getUserNameByUid(uid)
+        managerNames.push(name)
+    }
+    return managerNames;
+};
+
+export const getEditorNamesByProjectId = async (pId) => {
+    let project_data = await getProjectById(pId);
+    let editorNames = [];
+
+    for (const uid of project_data.editor) {
+        let name = await getUserNameByUid(uid)
+        editorNames.push(name)
+    }
+    return editorNames;
 };
 
 // GET from users collection
