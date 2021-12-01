@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { makeStyles, Button } from '@material-ui/core';
+import { makeStyles, Button, Typography } from '@material-ui/core';
 import { auth, getRoleByProjectId } from '../firebase';
 import About from './About';
 import AllContent from './AllContent';
@@ -51,7 +51,7 @@ const Project = (props) => {
             {navId === 1 && <AllContent team={props.team} />}
             {navId == 2 && <Members team={props.team} />}
             {navId == 3 && <MyContent team={props.team} />}
-            {navId == 4 && <ProjectSettings />}
+            {navId == 4 && <ProjectSettings team={props.team} />}
         </>
     );
 }

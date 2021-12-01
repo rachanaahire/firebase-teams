@@ -27,6 +27,7 @@ const Body = (props) => {
         if (data !== null) {
             us = JSON.parse(data);
             getProjects(us.userId);
+            console.log("dsad",us);
         } else {
             us = null;
         }
@@ -56,7 +57,7 @@ const Body = (props) => {
                     </>
                     :
                     <>
-                        <Typography>YOUR PROJECTS </Typography> <br />
+                        <Typography><b>YOUR PROJECTS</b> </Typography> <br />
                         {myteams &&
                             <>
                                 <Grid container spacing={3}>
@@ -85,7 +86,7 @@ const Body = (props) => {
                                 </Grid>
                             </>
                         }
-                        <br /><br /><Typography>ALL PROJECTS </Typography> <br />
+                        <br /><br /><Typography><b>ALL PROJECTS</b> </Typography> <br />
                         <Grid container spacing={3}>
                             {teams.map((team) => (
                                 <Grid item xs={4} >

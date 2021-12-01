@@ -3,33 +3,7 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
 
-// const firebaseConfig = {
-//     apiKey: "AIzaSyD7i_G4Z5EPkhz_M8fXXFyWsvbR8u_I0FQ",
-
-//     authDomain: "teams-feature.firebaseapp.com",
-
-//     projectId: "teams-feature",
-
-//     storageBucket: "teams-feature.appspot.com",
-
-//     messagingSenderId: "303610883430",
-
-//     appId: "1:303610883430:web:56ede584d18037f7de6ca7"
-
-// };
 const firebaseConfig = {
-
-    apiKey: "AIzaSyD3RComsvExCi6USR-O4qTQpY_YvuP9tfY",
-
-    authDomain: "teams-demo-b6f30.firebaseapp.com",
-
-    projectId: "teams-demo-b6f30",
-
-    storageBucket: "teams-demo-b6f30.appspot.com",
-
-    messagingSenderId: "931424015680",
-
-    appId: "1:931424015680:web:3cb4bd256f89ebef55d6a5"
 
 };
 
@@ -167,23 +141,15 @@ export const getRoleByProjectId = async (uid, projectId) => {
     return null
 };
 
-export const getMembersOfProject = async (pId) => {
+export const getMembersIdOfProject = async (pId) => {
     let project_data = await getProjectById(pId);
-    let members = {
-        owner: await getUserNameByUid(project_data.owner),
-        manager: [],
-        editor: []
-    }
+    let members = []
 
     project_data.manager.forEach(id => {
-        getUserNameByUid(id).then((name) => {
-            members.manager.push(name);
-        })
+        members.push(id)
     });
     project_data.editor.forEach(id => {
-        getUserNameByUid(id).then((name) => {
-            members.editor.push(name);
-        })
+        members.push(id)
     });
 
     return members;
@@ -240,7 +206,86 @@ export const getEditorNamesByProjectId = async (pId) => {
     return editorNames;
 };
 
+// export const getMembersDemo = async (uid) => {
+//     const ref = firebase.firestore().collection(`projects`);
+//     ref = ref.where('manager', "array-contains", uid)
+//     ref = ref.where('editor', "array-contains", uid)
+//     ref = ref.where('owner', "array-contains", uid)
+//     const snapshot = await ref.get();
+
+//     if (snapshot.size) {
+//         const items = [];
+//         snapshot.forEach(doc => {
+//             // let data = { ...doc.data(), uid: doc.id }
+//             items.push(data);
+//         });
+//         return items
+//     }
+
+//     return null
+// };
+
 // GET from users collection
+export const getAllUsers = async () => {
+    const ref = firebase.firestore().collection(`users`);
+    const snapshot = await ref.get();
+
+    if (snapshot.size) {
+        const items = [];
+        snapshot.forEach(doc => {
+            let data = { ...doc.data(), uid: doc.id }
+            items.push(data);
+        });
+        return items
+    }
+
+    return null
+};
+
+export const getNonMembersUserList = async (pid) => {
+    const ref = firebase.firestore().collection(`users`);
+    const snapshot = await ref.get();
+    let memberList = await getMembersIdOfProject(pid)
+
+    if (snapshot.size) {
+        const items = [];
+        snapshot.forEach(doc => {
+            if (!memberList.includes(doc.id)) {
+                let obj = {
+                    uid: doc.id,
+                    name: doc.data().name
+                }
+                items.push(obj);
+            }
+        });
+        return items
+    }
+
+    return null
+};
+
+export const getMembersUserList = async (pid) => {
+    const ref = firebase.firestore().collection(`users`);
+    const snapshot = await ref.get();
+    let memberList = await getMembersIdOfProject(pid)
+
+    if (snapshot.size) {
+        const items = [];
+        snapshot.forEach(doc => {
+            if (memberList.includes(doc.id)) {
+                let obj = {
+                    uid: doc.id,
+                    name: doc.data().name
+                }
+                items.push(obj);
+            }
+        });
+        return items
+    }
+
+    return null
+};
+
 export const getUserByUid = async (uid) => {
     const ref = firebase.firestore().doc(`users/${uid}`);
     const snapshot = await ref.get();
@@ -298,3 +343,92 @@ export const getContentByProjectId = async (pid) => {
 
     return null
 };
+
+export const getContentOfAuthor = async (pid, uid) => {
+    const ref = firebase.firestore().collection(`projects/${pid}/contents`).where('author','==',uid);
+    const snapshot = await ref.get()
+
+    if (snapshot.size) {
+        const items = [];
+        snapshot.forEach(doc => {
+            let data = { ...doc.data(), docId: doc.id }
+            items.push(data);
+        });
+        return items
+    }
+
+    return null
+};
+
+
+// UPDATE in projects collection
+export const updateProjectById = async (pid, data) => {
+    const ref = firebase.firestore().doc(`projects/${pid}`);
+    const snapshot = await ref.get();
+
+    if (snapshot.exists) {
+        await snapshot.ref.update({ name: data.projectName, description: data.projectDescp });
+    }
+};
+
+export const addMembers = async (pid, data) => {
+    const ref = firebase.firestore().doc(`projects/${pid}`);
+    const snapshot = await ref.get();
+
+    if (snapshot.exists) {
+        if (data.role == 'manager') {
+            await snapshot.ref.update({ manager: firebase.firestore.FieldValue.arrayUnion(data.member) });
+        } else {
+            await snapshot.ref.update({ editor: firebase.firestore.FieldValue.arrayUnion(data.member) });
+        }
+    }
+};
+
+export const delMembers = async (pid, id) => {
+    const ref = firebase.firestore().doc(`projects/${pid}`);
+    const snapshot = await ref.get();
+
+    if (snapshot.exists) {
+        let data = snapshot.data();
+        if (data.manager.includes(id)) {
+            await snapshot.ref.update({ manager: firebase.firestore.FieldValue.arrayRemove(id) });
+        } else {
+            await snapshot.ref.update({ editor: firebase.firestore.FieldValue.arrayRemove(id) });
+        }
+    }
+};
+
+export const updateContentById = async (data, pid, cid) => {
+    const ref = firebase.firestore().doc(`projects/${pid}/contents/${cid}`);
+    const snapshot = await ref.get();
+
+    if (snapshot.exists) {
+        await snapshot.ref.update({ heading: data.heading, body: data.body });
+    }
+};
+
+export const deleteContentById = async (pid, cid) => {
+    const ref = firebase.firestore().doc(`projects/${pid}/contents/${cid}`);
+    const snapshot = await ref.get();
+
+    if (snapshot.exists) {
+        await snapshot.ref.delete();
+    }
+};
+
+//ADD Contents
+export const addContent = async (data, pid, uid) => {
+    await db.collection(`projects/${pid}/contents`).doc().set({ heading: data.heading, body: data.body, author: uid });
+};
+
+export const addProject = async (data, uid) => {
+    await db.collection(`projects`).doc().set({
+        name: data.name,
+        description: data.description,
+        manager: db.fi,
+        editor: data.editors,
+        owner: uid,
+        createdOn: new Date()
+    });
+};
+

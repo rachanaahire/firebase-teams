@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, Typography } from '@material-ui/core';
 import { getAllContent, getContentByProjectId, getMembersOfProject } from '../firebase';
 
 const useStyles = makeStyles((theme) => ({
@@ -16,9 +16,8 @@ const AllContent = (props) => {
 
     const getContent = async () => {
         setLoading(true);
-        let content = await getAllContent();
+        let content = await getContentByProjectId(team.docId);
         setContent(content);
-        console.log(content);
         setLoading(false);
     }
 
@@ -32,6 +31,16 @@ const AllContent = (props) => {
 
     return (
         <> <h1>AllContent</h1>
+            {content ? content.map((demo) => <>
+                <div style={{ border: '1px solid black', padding: 30, borderRadius: 20, marginTop: 20 }}>
+                    <Typography><b>{demo.heading}</b></Typography>
+                    <Typography>{demo.body}</Typography>
+                </div>
+            </>)
+            :
+            <>
+            <Typography>No Contents Added yet</Typography>
+            </>}
         </>
     );
 }
